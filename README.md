@@ -9,3 +9,5 @@ c -> connect to db gopgtest
 gopgtest=# \dt
 
 dt -> display tables in connected db
+
+gopgtest=# SELECT * FROM product;
