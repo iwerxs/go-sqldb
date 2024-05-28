@@ -40,10 +40,31 @@ func main(){
 
 	createProductTable(db)
 
-	product := Product{"Book1", 15.55, true}
-	pk := insertProduct(db, product)
+	// iterate over multiple rows of the db
+	// create a slice of Product objects from the returned data from the db
+	// append the returned results into the slice
+	data := []Product{}
+	rows, err := db.Query("SELECT name, available, price FROM product")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// defer close rows is important to stop potential memory leaks
+	defer rows.Close()
+	// scan DB values
+	var name string
+	var available bool
+	var price float64
 
-	fmt.Printf("ID = %d\n", pk)
+	for rows.Next() {
+		err := rows.Scan(&name, &available, &price)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// append results into the data variable
+		data = append(data, Product{name, price, available})
+	}
+	// print data to the terminal
+	fmt.Println(data)
 }
 
 // take a pointer to it as an argument
