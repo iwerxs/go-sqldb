@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	// import pkg for side effects
@@ -38,6 +39,11 @@ func main(){
 	}
 
 	createProductTable(db)
+
+	product := Product{"Book1", 15.55, true}
+	pk := insertProduct(db, product)
+
+	fmt.Printf("ID = %d\n", pk)
 }
 
 // take a pointer to it as an argument
@@ -57,5 +63,20 @@ func createProductTable(db *sql.DB){
 		// quit the program
 	}
 
+}
 
+// insertProduct func, product of Type Product, which returns an int for the Primary Key of the product
+// when the db is called from createProductTable(db) the Primary Key id is needed to perform further queries; var pk
+// insert data into the product table.
+// reference values using the $ syntax to paramatize the data, that helps stop SQL injection 
+func insertProduct(db *sql.DB, product Product) int {
+	query := `INSERT INTO product (name, price, available)
+		VALUES ($1, $2, $3) RETURNING id`
+	
+	var pk int
+	err := db.QueryRow(query, product.Name, product.Price, product.Available).Scan(&pk)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return pk
 }
